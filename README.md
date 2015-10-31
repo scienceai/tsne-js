@@ -42,6 +42,8 @@ model.init(inputData);
 model.run();
 // output is unpacked ndarray (regular nested javascript array)
 let output = model.getOutput();
+// outputScaled is output scaled to [-1, 1]
+let outputScaled = model.getOutputScaled();
 ```
 
 ###### Model Parameters

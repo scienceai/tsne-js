@@ -57,6 +57,16 @@ export default class TSNE {
     return unpack(this.outputEmbedding);
   }
 
+  getOutputScaled() {
+    let outputEmbeddingScaled = ndarray(new Float64Array(this.outputEmbedding.size), this.outputEmbedding.shape);
+    let temp = ndarray(new Float64Array(this.outputEmbedding.shape[0]), [this.outputEmbedding.shape[0]]);
+    for (let d = 0; d < this.outputEmbedding.shape[1]; d++) {
+      let maxVal = ops.sup(ops.abs(temp, this.outputEmbedding.pick(null, d)));
+      ops.divs(outputEmbeddingScaled.pick(null, d), this.outputEmbedding.pick(null, d), maxVal);
+    }
+    return unpack(outputEmbeddingScaled);
+  }
+
   _gradDesc(iter, nIter, momentum, minGradNorm=1e-6, minErrorDiff=1e-6) {
     let nIterWithoutProg = 30;
 
