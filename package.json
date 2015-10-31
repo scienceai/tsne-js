@@ -1,0 +1,46 @@
+{
+  "name": "@scienceai/tsne-js",
+  "version": "0.1.0",
+  "description": "t-SNE implementation in JavaScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist && node_modules/.bin/babel src --out-dir dist",
+    "prepublish": "npm run build",
+    "test": "mocha --reporter spec --compilers js:babel/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scienceai/tsne-js.git"
+  },
+  "keywords": [
+    "Barnes-Hut",
+    "t-SNE",
+    "tSNE",
+    "tsne",
+    "t-distributed",
+    "stochastic",
+    "neighbor",
+    "embedding"
+  ],
+  "author": "Leon Chen <lchen3@gmail.com> (@transcranial)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/scienceai/tsne-js/issues"
+  },
+  "homepage": "https://github.com/scienceai/tsne-js#readme",
+  "devDependencies": {
+    "babel": "^6.0.14",
+    "babel-cli": "^6.0.14",
+    "babel-eslint": "^4.1.3",
+    "babel-preset-es2015": "^6.0.14",
+    "eslint": "^1.8.0",
+    "mocha": "^2.3.3"
+  },
+  "dependencies": {
+    "cwise": "^1.0.8",
+    "ndarray": "^1.0.18",
+    "ndarray-ops": "^1.2.2",
+    "ndarray-pack": "^1.1.1",
+    "ndarray-unpack": "^1.0.0"
+  }
+}
