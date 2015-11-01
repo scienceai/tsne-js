@@ -37,7 +37,8 @@ let model = new TSNE({
 });
 
 // inputData is a nested array which can be converted into an ndarray
-model.init(inputData);
+// alternatively, it can be an array of coordinates (second argument should be specified as 'sparse')
+model.init(inputData, 'dense');
 // use `let [error, iter] = model.run()` for final error and iteration number
 model.run();
 // output is unpacked ndarray (regular nested javascript array)

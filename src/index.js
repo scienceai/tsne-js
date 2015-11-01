@@ -24,9 +24,26 @@ export default class TSNE {
     this.outputEmbedding = null;
   }
 
-  init(inputData) {
+  init(inputData, type='dense') {
     // input data as ndarray
-    this.inputData = pack(inputData);
+    if (type === 'dense') {
+      this.inputData = pack(inputData);
+    } else if (type === 'sparse') {
+      let shape = [];
+      let size = 1;
+      for (var d = 0; d < inputData[0].length; d++) {
+        let max = inputData.reduce((a, b) => a[d] > b[d] ? a[d] : b[d]) + 1;
+        shape.push(max);
+        size *= max;
+      }
+      this.inputData = ndarray(new Float64Array(size), shape);
+      for (let coord of inputData) {
+        this.inputData.set(...coord, 1);
+      }
+    } else {
+      throw new Error('input data type must be dense or sparse');
+    }
+
     // random initialization of output embedding
     this.outputEmbedding = randn(this.inputData.shape[0], this.dim);
   }
