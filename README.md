@@ -4,9 +4,9 @@ t-distributed stochastic neighbor embedding (t-SNE) algorithm implemented in Jav
 
 ### Background
 
-t-SNE is a powerful manifold technique for embedding data into low-dimensional space (typically 2-d or 3-d for visualization purposes) while preserving small pairwise distances or local data structures in the original high-dimensional space. In practice, this results in a much more intuitive layout within the low-dimensional space as compared to other techniques. The low-dimensional embedding is learned by minimizing the Kullback-Leibler divergence between the pairwise-similarity probability distributions over the original data space and distribuions over the embedding space.
+t-SNE is a powerful manifold technique for embedding data into low-dimensional space (typically 2-d or 3-d for visualization purposes) while preserving small pairwise distances or local data structures in the original high-dimensional space. In practice, this results in a much more intuitive layout within the low-dimensional space as compared to other techniques. The low-dimensional embedding is learned by minimizing the Kullback-Leibler divergence between the pairwise-similarity probability distribution over the original data space and distribution over the embedding space.
 
-An important note is that the objective function is non-convex, and thus results are non-deterministic.
+An important note is that the objective function is non-convex with numerous local minima, and thus the results are non-deterministic. There are a few model parameters which influence the learning and optimization process. Selecting appropriate parameters for the input data can significantly improve the chances the model converge on good solutions.
 
 Currently implemented is the exact fomulation, which has computational complexity O(_N^2_). Implementation of the O(_N*logN_) Barnes-Hut approximation variant is planned.
 
@@ -90,4 +90,4 @@ $ npm test
 
 ### License
 
-[Apache 2.0](https://github.com/scienceai/bh-tsne/blob/master/LICENSE)
+[Apache 2.0](https://github.com/scienceai/tsne-js/blob/master/LICENSE)
