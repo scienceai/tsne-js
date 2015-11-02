@@ -3,10 +3,10 @@ import ops from 'ndarray-ops';
 import pack from 'ndarray-pack';
 import unpack from 'ndarray-unpack';
 import cwise from 'cwise';
-import randn from './lib/randn';
-import pairwiseDistances from './lib/pairwise-distances';
-import jointProbabilities from './lib/joint-probabilities';
-import divergenceKL from './lib/kl-divergence';
+import randn from './randn';
+import pairwiseDistances from './pairwise-distances';
+import jointProbabilities from './joint-probabilities';
+import divergenceKL from './kl-divergence';
 
 export default class TSNE {
   constructor(config) {
@@ -25,13 +25,16 @@ export default class TSNE {
   }
 
   init(inputData, type='dense') {
-    // input data as ndarray
+    // format input data as ndarray
     if (type === 'dense') {
+
       this.inputData = pack(inputData);
+
     } else if (type === 'sparse') {
+
       let shape = [];
       let size = 1;
-      for (var d = 0; d < inputData[0].length; d++) {
+      for (let d = 0; d < inputData[0].length; d++) {
         let max = inputData.reduce((a, b) => a[d] > b[d] ? a[d] : b[d]) + 1;
         shape.push(max);
         size *= max;
@@ -40,6 +43,7 @@ export default class TSNE {
       for (let coord of inputData) {
         this.inputData.set(...coord, 1);
       }
+
     } else {
       throw new Error('input data type must be dense or sparse');
     }
@@ -70,17 +74,30 @@ export default class TSNE {
     return [error, iter];
   }
 
+  rerun() {
+    // random re-initialization of output embedding
+    this.outputEmbedding = randn(this.inputData.shape[0], this.dim);
+
+    // re-run with gradient descent
+    let [error, iter] = this.run();
+
+    return [error, iter];
+  }
+
   getOutput() {
     return unpack(this.outputEmbedding);
   }
 
   getOutputScaled() {
+    // scale output embedding to [-1, 1]
     let outputEmbeddingScaled = ndarray(new Float64Array(this.outputEmbedding.size), this.outputEmbedding.shape);
     let temp = ndarray(new Float64Array(this.outputEmbedding.shape[0]), [this.outputEmbedding.shape[0]]);
+
     for (let d = 0; d < this.outputEmbedding.shape[1]; d++) {
       let maxVal = ops.sup(ops.abs(temp, this.outputEmbedding.pick(null, d)));
       ops.divs(outputEmbeddingScaled.pick(null, d), this.outputEmbedding.pick(null, d), maxVal);
     }
+
     return unpack(outputEmbeddingScaled);
   }
 
