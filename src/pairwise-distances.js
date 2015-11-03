@@ -26,6 +26,7 @@ let jaccard = cwise({
     this.tt += +(a == 1 && b == 1);
   },
   post: function(a, b) {
+    if (this.tf + this.tt === 0) return 1.0;
     return this.tf / (this.tf + this.tt);
   }
 });
