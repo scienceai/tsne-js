@@ -35,9 +35,9 @@ export default class TSNE {
       let shape = [];
       let size = 1;
       for (let d = 0; d < inputData[0].length; d++) {
-        let max = inputData.reduce((a, b) => a[d] > b[d] ? a[d] : b[d]) + 1;
-        shape.push(max);
-        size *= max;
+        let dimShape = Math.max.apply(null, inputData.map(coord => coord[d])) + 1;
+        shape.push(dimShape);
+        size *= dimShape;
       }
       this.inputData = ndarray(new Float64Array(size), shape);
       for (let coord of inputData) {
