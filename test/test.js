@@ -4,13 +4,13 @@ import ndarray from 'ndarray';
 import unpack from 'ndarray-unpack';
 
 describe('TSNE', function() {
-  this.timeout(10*1000);
+  this.timeout(30*1000);
 
   let model, sample_coo, sample_mat;
 
   before(done => {
 
-    sample_coo = require('./fixtures/sample_coo.json');
+    sample_coo = require('./fixtures/sample_coo_sparse_matrix.json');
     const samples = 68;
     const features = 585;
     sample_mat = ndarray(new Float64Array(samples * features), [samples, features]);
@@ -53,7 +53,7 @@ describe('TSNE', function() {
     done();
   });
 
-  it('should be able to initialized with coo sparse array', done => {
+  it('should be able to be initialized with coo sparse matrix', done => {
 
     const nTrials = 10;
 
