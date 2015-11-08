@@ -9,7 +9,7 @@ import pairwiseDistances from './pairwise-distances';
 import jointProbabilities from './joint-probabilities';
 import divergenceKL from './kl-divergence';
 
-export default class TSNE extends EventEmitter {
+class TSNE extends EventEmitter {
   constructor(config) {
     super();
     config = config || {};
@@ -174,3 +174,5 @@ export default class TSNE extends EventEmitter {
     return [error, i];
   }
 }
+
+export default TSNE;

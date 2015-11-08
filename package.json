@@ -1,6 +1,6 @@
 {
   "name": "tsne-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "t-SNE implementation in JavaScript",
   "main": "dist/index.js",
   "scripts": {
