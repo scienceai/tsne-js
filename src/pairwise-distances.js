@@ -16,6 +16,20 @@ let euclidean = cwise({
   }
 });
 
+// Manhattan distance
+let manhattan = cwise({
+  args: ['array', 'array'],
+  pre: function(a, b) {
+    this.sum = 0.0;
+  },
+  body: function(a, b) {
+    this.sum += Math.abs(a - b);
+  },
+  post: function(a, b) {
+    return this.sum;
+  }
+});
+
 // Jaccard dissimilarity
 let jaccard = cwise({
   args: ['array', 'array'],
@@ -33,6 +47,23 @@ let jaccard = cwise({
   }
 });
 
+// Dice dissimilarity
+let dice = cwise({
+  args: ['array', 'array'],
+  pre: function(a, b) {
+    this.tf = 0.0;
+    this.tt = 0.0;
+  },
+  body: function(a, b) {
+    this.tf += +(a != b);
+    this.tt += +(a == 1 && b == 1);
+  },
+  post: function(a, b) {
+    if (this.tf + this.tt === 0) return 1.0;
+    return this.tf / (this.tf + 2 * this.tt);
+  }
+});
+
 export default function(data, metric) {
   let nSamples = data.shape[0];
   let distance = ndarray(new Float64Array(nSamples * nSamples), [nSamples, nSamples]);
@@ -47,10 +78,28 @@ export default function(data, metric) {
         }
       }
       break;
+    case 'manhattan':
+      for (let i = 0; i < nSamples; i++) {
+        for (let j = i + 1; j < nSamples; j++) {
+          let d = manhattan(data.pick(i, null), data.pick(j, null));
+          distance.set(i, j, d);
+          distance.set(j, i, d);
+        }
+      }
+      break;
     case 'jaccard':
       for (let i = 0; i < nSamples; i++) {
         for (let j = i + 1; j < nSamples; j++) {
           let d = jaccard(data.pick(i, null), data.pick(j, null));
+          distance.set(i, j, d);
+          distance.set(j, i, d);
+        }
+      }
+      break;
+    case 'dice':
+      for (let i = 0; i < nSamples; i++) {
+        for (let j = i + 1; j < nSamples; j++) {
+          let d = dice(data.pick(i, null), data.pick(j, null));
           distance.set(i, j, d);
           distance.set(j, i, d);
         }
