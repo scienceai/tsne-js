@@ -91,7 +91,6 @@ Then it's the same API as above. A browser [example](https://scienceai.github.io
 
 + `nIter`: maximum number of iterations, should be at least 200
 
-
 + `metric`: distance measure to use for input data, currently implemented measures include
   + `euclidean`
   + `manhattan`
