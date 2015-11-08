@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Example: MNIST MLP</title>
+  <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body onLoad="init()">
+  <div class="container">
+    <div class="title"><span data-sr="enter top over 2s and move 30px">t-SNE.js</span><br><span class="github" data-sr="enter left over 2s and move 60px">[<a href="https://github.com/scienceai/tsne-js", target="_blank">github</a>]</span><br><span class="subtitle" data-sr="enter bottom over 2s and move 10px">example with MNIST (raw data)</span></div>
+    <div class="panel">
+      <div id="control-panel" data-sr="enter left over 8s">
+        <div class="param">
+          <label for="param-nsamples"># Samples</label>
+          <select id="param-nsamples" name="param-nsamples">
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400" selected>400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+            <option value="1000">1000</option>
+          </select>
+          <output for="param-nsamples" id="param-nsamples-value"></output>
+        </div>
+        <div class="param">
+          <label for="param-perplexity">Perplexity</label>
+          <input id="param-perplexity" type="range" min="5" max="50" value="15", step="1">
+          <output for="param-perplexity" id="param-perplexity-value">15</output>
+        </div>
+        <div class="param">
+          <label for="param-earlyexag">Early Exaggeration</label>
+          <input id="param-earlyexag" type="range" min="1.1" max="10.0" value="2.1", step="0.1">
+          <output for="param-earlyexag" id="param-earlyexag-value">2.1</output>
+        </div>
+        <div class="param">
+          <label for="param-learningrate">Learning Rate</label>
+          <input id="param-learningrate" type="range" min="1" max="1000" value="180", step="1">
+          <output for="param-learningrate" id="param-learningrate-value">180</output>
+        </div>
+        <div class="param">
+          <label for="param-maxiter">Max Iterations</label>
+          <input id="param-maxiter" type="range" min="100" max="500" value="150", step="10">
+          <output for="param-maxiter" id="param-maxiter-value">150</output>
+        </div>
+        <div class="param">
+          <label for="param-distance">Distance Metric</label>
+          <select id="param-distance" name="param-distance">
+            <option value="euclidean" selected>Euclidean distance</option>
+            <option value="manhattan">Manhattan distance</option>
+            <option value="jaccard">Jaccard dissimilarity</option>
+            <option value="dice">Dice dissimilarity</option>
+          </select>
+          <output for="param-distance" id="param-distance-value"></output>
+        </div>
+        <div id="run-button">Run</div>
+        <div id="progress">
+          <div><span id="progress-status">Click Run button to begin</span></div>
+          <div>Iteration: <span id="progress-iter"></span></div>
+          <div>Error: <span id="progress-error"></span></div>
+          <div>Gradient vector norm: <span id="progress-gradnorm"></span></div>
+        </div>
+      </div>
+      <div id="embedding-space" data-sr="fade in over 5s"></div>
+    </div>
+  </div>
+  <div class="footer">&copy; 2015 [<a href="http://science.ai" target="_blank">science.ai</a>] [<a href="https://twitter.com/sciencedotai" target="_blank">@sciencedotai</a>]<br>
+    Maintained by [<a href="https://twitter.com/transcranial" target="_blank">@transcranial</a>] | Code licensed under [<a href="https://github.com/scienceai/tsne-js/blob/master/LICENSE" target="_blank">Apache 2.0</a>]
+  </div>
+
+  <!----------- SCRIPTS ------------>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+  <script src="../build/tsne.min.js"></script>
+  <script>
+    'use strict';
+
+    let worker;
+    let N_SAMPLES;
+    let SAMPLE_DATA;
+
+    function init () {
+      worker = new Worker('worker.js');
+
+      worker.onmessage = function (e) {
+        let msg = e.data;
+
+        switch (msg.type) {
+          case 'PROGRESS_STATUS':
+            $('#progress-status').text(msg.data);
+            break;
+          case 'PROGRESS_ITER':
+            $('#progress-iter').text(msg.data[0] + 1);
+            $('#progress-error').text(msg.data[1].toPrecision(7));
+            $('#progress-gradnorm').text(msg.data[2].toPrecision(5));
+            break;
+          case 'PROGRESS_DATA':
+            drawUpdate(msg.data);
+            break;
+          case 'STATUS':
+            if (msg.data === 'READY') {
+              $('#run-button').bind('click', run);
+            } else {
+              $('#run-button').unbind('click', run);
+            }
+            break;
+          case 'DONE':
+            drawUpdate(msg.data);
+            break;
+          default:
+        }
+      }
+
+      N_SAMPLES = parseInt($('#param-nsamples').val(), 10);
+      draw(N_SAMPLES);
+
+    }
+
+    function draw (num) {
+
+      function _draw(samples) {
+
+        let sampleData = samples.data.slice(0, num);
+        let sampleLabels = samples.labels.slice(0, num);
+
+        worker.postMessage({
+          type: 'INPUT_DATA',
+          data: sampleData
+        });
+
+        $('#embedding-space').empty();
+        let embeddingSpace = document.getElementById('embedding-space');
+        for (let n = 0; n < num; n++) {
+          let c = document.createElement('canvas');
+          c.setAttribute('class', 'sample');
+          c.setAttribute('id', `sample-${n}`);
+          c.setAttribute('width', 28);
+          c.setAttribute('height', 28);
+          embeddingSpace.appendChild(c);
+          let ctx = c.getContext('2d');
+          let imgData = ctx.createImageData(28, 28);
+          for (let i = 0; i < imgData.data.length; i+=4) {
+            imgData.data[i+0] = 255;
+            imgData.data[i+1] = 255;
+            imgData.data[i+2] = 255;
+            imgData.data[i+3] = 255 * sampleData[n][i/4];
+          }
+          ctx.putImageData(imgData, 0, 0);
+
+          c.style.transform = `translateX(${Math.random() * embeddingSpace.clientWidth - 14}px) translateY(${Math.random() * embeddingSpace.clientHeight - 14}px)`;
+        }
+      }
+
+      if (SAMPLE_DATA) {
+        _draw(SAMPLE_DATA);
+      } else {
+        $.getJSON('https://s3.amazonaws.com/neocortex-js/examples-data/mnist_mlp_sample_data.json.gz', function (samples) {
+          SAMPLE_DATA = samples;
+          _draw(SAMPLE_DATA);
+        });
+      }
+    }
+
+    function run () {
+      worker.postMessage({
+        type: 'RUN',
+        data: {
+          perplexity: parseInt($('#param-perplexity').val(), 10),
+          earlyExaggeration: parseFloat($('#param-earlyexag').val()),
+          learningRate: parseInt($('#param-learningrate').val(), 10),
+          nIter: parseInt($('#param-maxiter').val(), 10),
+          metric: $('#param-distance').val()
+        }
+      });
+    }
+
+    function drawUpdate (embedding) {
+      let embeddingSpace = document.getElementById('embedding-space');
+      let embeddingSpaceWidth = embeddingSpace.clientWidth;
+      let embeddingSpaceHeight = embeddingSpace.clientHeight;
+      for (let n = 0; n < N_SAMPLES; n++) {
+        let c = document.getElementById(`sample-${n}`);
+        c.style.transform = `translateX(${(embedding[n][0] + 1) * embeddingSpaceWidth / 2 - 14}px) translateY(${(embedding[n][1] + 1) * embeddingSpaceHeight / 2 - 14}px)`;
+      }
+    }
+
+    // form controls
+    $('#param-nsamples').change(function () {
+      N_SAMPLES = parseInt($('#param-nsamples').val(), 10);
+      draw(N_SAMPLES);
+    });
+    $('#param-perplexity').bind('input', function () { $('#param-perplexity-value').text($('#param-perplexity').val()); });
+    $('#param-earlyexag').bind('input', function () { $('#param-earlyexag-value').text($('#param-earlyexag').val()); });
+    $('#param-learningrate').bind('input', function () { $('#param-learningrate-value').text($('#param-learningrate').val()); });
+    $('#param-maxiter').bind('input', function () { $('#param-maxiter-value').text($('#param-maxiter').val()); });
+
+
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollReveal.js/2.3.2/scrollReveal.min.js"></script>
+  <script>
+    (function() {
+      window.sr= new scrollReveal({
+        reset: true,
+        mobile: true,
+        vFactor: 0.2
+      });
+    })();
+  </script>
+</body>
+</html>
