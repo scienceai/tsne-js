@@ -1,6 +1,19 @@
 # t-SNE.js
 
+[![build status](https://img.shields.io/travis/scienceai/tsne-js/master.svg?style=flat-square)](https://travis-ci.org/scienceai/tsne-js)
+[![npm version](https://img.shields.io/npm/v/tsne-js.svg?style=flat-square)](https://www.npmjs.com/package/tsne-js)
+
 t-distributed stochastic neighbor embedding (t-SNE) algorithm implemented in JavaScript
+
++ Runs in the browser (also runs in Web Workers)
+
++ Runs in node.js
+
++ Uses efficient in-place matrix operations via [ndarray](https://github.com/scijs/ndarray)
+
++ Follows closely the API of [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html), allowing specification of perplexity and early exaggeration factor, among other parameters.
+
+**[INTERACTIVE DEMO](https://scienceai.github.io/tsne-js)**
 
 ### Background
 
@@ -8,7 +21,7 @@ t-SNE is a powerful manifold technique for embedding data into low-dimensional s
 
 An important note is that the objective function is non-convex with numerous local minima, and thus the results are non-deterministic. There are a few model parameters which influence the learning and optimization process. Selecting appropriate parameters for the input data can significantly improve the chances the model converge on good solutions.
 
-Currently implemented is the exact fomulation, which has computational complexity O(_N^2_). Implementation of the O(_N*logN_) Barnes-Hut approximation variant is planned.
+Currently implemented is the exact fomulation, which has computational complexity O(_dN^2_), where _d_ is the original dimensionality of the data and _N_ is the number of samples. Implementation of the O(_dN*logN_) Barnes-Hut approximation variant is planned (contributions welcome!).
 
 <p align="center">
   <img src="http://lvdmaaten.github.io/tsne/examples/caltech101_tsne.jpg" width="400" />
@@ -19,7 +32,9 @@ Currently implemented is the exact fomulation, which has computational complexit
 
 Can be run in node.js or the browser. In the browser, should ideally be run in a web worker.
 
-```
+###### node.js
+
+```sh
 $ npm install tsne-js --save
 ```
 
@@ -32,20 +47,37 @@ let model = new TSNE({
   earlyExaggeration: 4.0,
   learningRate: 100.0,
   nIter: 1000,
-  tolerance: 1e-5,
   metric: 'euclidean'
 });
 
 // inputData is a nested array which can be converted into an ndarray
 // alternatively, it can be an array of coordinates (second argument should be specified as 'sparse')
-model.init(inputData, 'dense');
-// use `let [error, iter] = model.run()` for final error and iteration number
-model.run();
-// output is unpacked ndarray (regular nested javascript array)
+model.init({
+  data: inputData,
+  type: 'dense'
+});
+
+// `error`,  `iter`: final error and iteration number
+// note: computation-heavy action happens here
+let [error, iter] = model.run();
+
+// rerun without re-calculating pairwise distances, etc.
+let [error, iter] = model.rerun();
+
+// `output` is unpacked ndarray (regular nested javascript array)
 let output = model.getOutput();
-// outputScaled is output scaled to [-1, 1]
+
+// `outputScaled` is `output` scaled to a range of [-1, 1]
 let outputScaled = model.getOutputScaled();
 ```
+
+###### browser
+
+```html
+<script src="tsne.min.js"></script>
+```
+
+Then it's the same API as above. A browser [example](https://scienceai.github.io/tsne-js) using Web Workers is in the `example/` folder.
 
 ###### Model Parameters
 
@@ -55,15 +87,32 @@ let outputScaled = model.getOutputScaled();
 
 + `earlyExaggeration`: parameter which influences spacing between clusters, must be at least 1.0
 
-+ `learningRate`: learning rate for gradient descent, should be between 100 and 1000
++ `learningRate`: learning rate for gradient descent, typically between 100 and 1000
 
 + `nIter`: maximum number of iterations, should be at least 200
 
-+ `tolerance`: perplexity tolerance, default is `1e-5`
 
 + `metric`: distance measure to use for input data, currently implemented measures include
   + `euclidean`
-  + `jaccard`
+  + `manhattan`
+  + `jaccard` (boolean data)
+  + `dice` (boolean data)
+
+### Build
+
+To run build yourself, for both the browser (outputs to `build/tsne.min.js`) and node.js (outputs to `dist/`):
+
+```sh
+$ npm run build
+```
+
+To build for just the browser, run `npm run build-browser`, and to build for just node.js, run `npm run build-node`.
+
+### Tests
+
+```sh
+$ npm test
+```
 
 ### References
 
@@ -81,12 +130,6 @@ Paper on Barnes-Hut variant t-SNE:
 L.J.P. van der Maaten.
 Accelerating t-SNE using Tree-Based Algorithms.
 Journal of Machine Learning Research 15(Oct):3221-3245, 2014.
-```
-
-### Tests
-
-```sh
-$ npm test
 ```
 
 ### License

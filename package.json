@@ -1,6 +1,6 @@
 {
-  "name": "@scienceai/tsne-js",
-  "version": "0.4.1",
+  "name": "tsne-js",
+  "version": "1.0.0",
   "description": "t-SNE implementation in JavaScript",
   "main": "dist/index.js",
   "scripts": {

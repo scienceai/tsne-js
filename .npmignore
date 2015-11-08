@@ -1,6 +1,8 @@
 test/
 src/
+.git/
 .babelrc
 .eslintignore
 .eslintrc
 .gitignore
+.travis.yml
