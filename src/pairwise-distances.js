@@ -38,8 +38,10 @@ let jaccard = cwise({
     this.tt = 0.0;
   },
   body: function(a, b) {
-    this.tf += +(a != b);
-    this.tt += +(a == 1 && b == 1);
+    var a_bool = Math.round(a);
+    var b_bool = Math.round(b);
+    this.tf += +(a_bool != b_bool);
+    this.tt += +(a_bool == 1 && b_bool == 1);
   },
   post: function(a, b) {
     if (this.tf + this.tt === 0) return 1.0;
@@ -55,8 +57,10 @@ let dice = cwise({
     this.tt = 0.0;
   },
   body: function(a, b) {
-    this.tf += +(a != b);
-    this.tt += +(a == 1 && b == 1);
+    var a_bool = Math.round(a);
+    var b_bool = Math.round(b);
+    this.tf += +(a_bool != b_bool);
+    this.tt += +(a_bool == 1 && b_bool == 1);
   },
   post: function(a, b) {
     if (this.tf + this.tt === 0) return 1.0;
