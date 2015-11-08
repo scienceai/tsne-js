@@ -15,7 +15,7 @@ export default function(embedding, P, alpha) {
   let nSamples = embedding.shape[0];
   let dim = embedding.shape[1];
 
-  // Q is a heavy-tailed distribution: Student's t-distribution
+  // Q: Student's t-distribution
   let Q = ndarray(new Float64Array(nSamples * nSamples), [nSamples, nSamples]);
   let n = pairwiseDistances(embedding, 'euclidean');
   square(n);
@@ -34,7 +34,7 @@ export default function(embedding, P, alpha) {
   ops.assign(temp2, P);
   let kl_divergence = ops.sum(ops.muleq(temp, temp2));
 
-  // Gradient: dC/dY
+  // calculate gradient
   let grad = ndarray(new Float64Array(embedding.size), embedding.shape);
   let PQd = ndarray(new Float64Array(nSamples * nSamples), [nSamples, nSamples]);
   ops.sub(PQd, P, Q);

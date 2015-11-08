@@ -1,6 +1,7 @@
 import ndarray from 'ndarray';
 import cwise from 'cwise';
 
+// Euclidean distance
 let euclidean = cwise({
   args: ['array', 'array'],
   pre: function(a, b) {
@@ -15,6 +16,7 @@ let euclidean = cwise({
   }
 });
 
+// Jaccard dissimilarity
 let jaccard = cwise({
   args: ['array', 'array'],
   pre: function(a, b) {

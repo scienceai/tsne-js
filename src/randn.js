@@ -1,5 +1,6 @@
 import ndarray from 'ndarray';
 
+// random Gaussian distribution based on Box-Muller transform
 function gaussRandom() {
   let u = 2 * Math.random() - 1;
   let v = 2 * Math.random() - 1;

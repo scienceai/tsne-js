@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import ndarray from 'ndarray';
 import ops from 'ndarray-ops';
 import pack from 'ndarray-pack';
@@ -8,8 +9,9 @@ import pairwiseDistances from './pairwise-distances';
 import jointProbabilities from './joint-probabilities';
 import divergenceKL from './kl-divergence';
 
-export default class TSNE {
+export default class TSNE extends EventEmitter {
   constructor(config) {
+    super();
     config = config || {};
 
     this.dim = config.dim || 2;
@@ -24,7 +26,12 @@ export default class TSNE {
     this.outputEmbedding = null;
   }
 
-  init(inputData, type='dense') {
+  init(opts) {
+    opts = opts || {};
+
+    let inputData = opts.data || [];
+    let type = opts.type || 'dense';
+
     // format input data as ndarray
     if (type === 'dense') {
 
@@ -134,6 +141,8 @@ export default class TSNE {
       let errorDiff = Math.abs(cost - error);
       error = cost;
       let gradNorm = norm(grad);
+
+      this.emit('progress', [i, error, gradNorm]);
 
       if (error < bestError) {
         bestError = error;
