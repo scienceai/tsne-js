@@ -18,7 +18,6 @@ export default class TSNE extends EventEmitter {
     this.perplexity = config.perplexity || 30.0;
     this.earlyExaggeration = config.earlyExaggeration || 4.0;
     this.learningRate = config.learningRate || 1000.0;
-    this.tolerance = config.tolerance || 1e-5;
     this.nIter = config.nIter || 1000;
     this.metric = config.metric || 'euclidean';
 
@@ -61,23 +60,29 @@ export default class TSNE extends EventEmitter {
 
   run() {
     // calculate pairwise distances
+    this.emit('progressStatus', 'Calculating pairwise distances');
     this.distances = pairwiseDistances(this.inputData, this.metric);
 
+    this.emit('progressStatus', 'Calculating joint probabilities');
     this.alpha = Math.max(this.dim - 1, 1);
-    this.P = jointProbabilities(this.distances, this.perplexity, this.tolerance);
+    this.P = jointProbabilities(this.distances, this.perplexity);
 
     let error = Number.MAX_VALUE;
     let iter = 0;
 
     // early exaggeration
+    this.emit('progressStatus', 'Early exaggeration with momentum 0.5');
     ops.mulseq(this.P, this.earlyExaggeration);
     [error, iter] = this._gradDesc(iter, 50, 0.5, 0.0, 0.0);
+    this.emit('progressStatus', 'Early exaggeration with momentum 0.8');
     [error, iter] = this._gradDesc(iter + 1, 100, 0.8, 0.0, 0.0);
 
     // final optimization
+    this.emit('progressStatus', 'Final optimization with momentum 0.8');
     ops.divseq(this.P, this.earlyExaggeration);
     [error, iter] = this._gradDesc(iter + 1, this.nIter, 0.8, 1e-6, 1e-6);
 
+    this.emit('progressStatus', 'Optimization end');
     return [error, iter];
   }
 
@@ -142,7 +147,7 @@ export default class TSNE extends EventEmitter {
       error = cost;
       let gradNorm = norm(grad);
 
-      this.emit('progress', [i, error, gradNorm]);
+      this.emit('progressIter', [i, error, gradNorm]);
 
       if (error < bestError) {
         bestError = error;
@@ -162,6 +167,8 @@ export default class TSNE extends EventEmitter {
       ops.mulseq(update, momentum);
       ops.subeq(update, temp);
       ops.addeq(this.outputEmbedding, update);
+
+      this.emit('progressData', this.getOutputScaled());
     }
 
     return [error, i];

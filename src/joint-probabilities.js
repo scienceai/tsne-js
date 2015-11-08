@@ -3,8 +3,9 @@ import ops from 'ndarray-ops';
 
 const EPSILON_DBL = 1e-7;
 const MACHINE_EPSILON = Number.EPSILON || 2.220446049250313e-16;
+const PERPLEXITY_TOLERANCE = 1e-5;
 
-export default function(distances, perplexity, tolerance) {
+export default function(distances, perplexity) {
   let nSteps = 100;
   let nSamples = distances.shape[0];
   let P_cond = ndarray(new Float64Array(nSamples * nSamples), [nSamples, nSamples]);
@@ -43,7 +44,7 @@ export default function(distances, perplexity, tolerance) {
 
       entropy = Math.log(sum_Pi) + beta * sum_disti_Pi;
       entropyDiff = entropy - desired_entropy;
-      if (Math.abs(entropyDiff) <= tolerance) break;
+      if (Math.abs(entropyDiff) <= PERPLEXITY_TOLERANCE) break;
 
       if (entropyDiff > 0.0) {
         betaMin = beta;
