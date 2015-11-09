@@ -116,8 +116,15 @@ class TSNE extends EventEmitter {
   _gradDesc(iter, nIter, momentum, minGradNorm=1e-6, minErrorDiff=1e-6) {
     let nIterWithoutProg = 30;
 
+    // initialize updates array
     let update = ndarray(new Float64Array(this.outputEmbedding.size), this.outputEmbedding.shape);
-    let gains = ndarray(new Float64Array(this.outputEmbedding.size).fill(1.0), this.outputEmbedding.shape);
+
+    // initialize gains array
+    let tempArray = new Float64Array(this.outputEmbedding.size);
+    for (let i = 0; i < tempArray.length; i++) {
+      tempArray[i] = 1.0;
+    }
+    let gains = ndarray(tempArray, this.outputEmbedding.shape);
 
     let error = Number.MAX_VALUE;
     let bestError = Number.MAX_VALUE;

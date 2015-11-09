@@ -18,7 +18,7 @@ function isReady () {
 
 isBusy();
 
-let model = new TSNE({
+var model = new TSNE({
   dim: 2,
   perplexity: 30.0,
   earlyExaggeration: 4.0,
@@ -27,10 +27,10 @@ let model = new TSNE({
   metric: 'euclidean'
 });
 
-let firstRun = true;
+var firstRun = true;
 
 self.onmessage = function (e) {
-  let msg = e.data;
+  var msg = e.data;
 
   switch (msg.type) {
     case 'INPUT_DATA':

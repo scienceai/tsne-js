@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Example: MNIST MLP</title>
+  <title>t-SNE.js</title>
   <meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
 <body onLoad="init()">
   <div class="container">
@@ -80,15 +79,15 @@
   <script>
     'use strict';
 
-    let worker;
-    let N_SAMPLES;
-    let SAMPLE_DATA;
+    var worker;
+    var N_SAMPLES;
+    var SAMPLE_DATA;
 
     function init () {
       worker = new Worker('worker.js');
 
       worker.onmessage = function (e) {
-        let msg = e.data;
+        var msg = e.data;
 
         switch (msg.type) {
           case 'PROGRESS_STATUS':
@@ -125,8 +124,8 @@
 
       function _draw(samples) {
 
-        let sampleData = samples.data.slice(0, num);
-        let sampleLabels = samples.labels.slice(0, num);
+        var sampleData = samples.data.slice(0, num);
+        var sampleLabels = samples.labels.slice(0, num);
 
         worker.postMessage({
           type: 'INPUT_DATA',
@@ -134,17 +133,17 @@
         });
 
         $('#embedding-space').empty();
-        let embeddingSpace = document.getElementById('embedding-space');
-        for (let n = 0; n < num; n++) {
-          let c = document.createElement('canvas');
+        var embeddingSpace = document.getElementById('embedding-space');
+        for (var n = 0; n < num; n++) {
+          var c = document.createElement('canvas');
           c.setAttribute('class', 'sample');
           c.setAttribute('id', `sample-${n}`);
           c.setAttribute('width', 28);
           c.setAttribute('height', 28);
           embeddingSpace.appendChild(c);
-          let ctx = c.getContext('2d');
-          let imgData = ctx.createImageData(28, 28);
-          for (let i = 0; i < imgData.data.length; i+=4) {
+          var ctx = c.getContext('2d');
+          var imgData = ctx.createImageData(28, 28);
+          for (var i = 0; i < imgData.data.length; i+=4) {
             imgData.data[i+0] = 255;
             imgData.data[i+1] = 255;
             imgData.data[i+2] = 255;
@@ -180,11 +179,11 @@
     }
 
     function drawUpdate (embedding) {
-      let embeddingSpace = document.getElementById('embedding-space');
-      let embeddingSpaceWidth = embeddingSpace.clientWidth;
-      let embeddingSpaceHeight = embeddingSpace.clientHeight;
-      for (let n = 0; n < N_SAMPLES; n++) {
-        let c = document.getElementById(`sample-${n}`);
+      var embeddingSpace = document.getElementById('embedding-space');
+      var embeddingSpaceWidth = embeddingSpace.clientWidth;
+      var embeddingSpaceHeight = embeddingSpace.clientHeight;
+      for (var n = 0; n < N_SAMPLES; n++) {
+        var c = document.getElementById(`sample-${n}`);
         c.style.transform = `translateX(${(embedding[n][0] + 1) * embeddingSpaceWidth / 2 - 14}px) translateY(${(embedding[n][1] + 1) * embeddingSpaceHeight / 2 - 14}px)`;
       }
     }
