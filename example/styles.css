@@ -11,6 +11,8 @@ body {
   flex-direction: column;
 }
 
+.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+
 .container {
   flex: 1;
   display: flex;
@@ -52,9 +54,13 @@ a:hover {
 
 #control-panel {
   flex: 1;
+  display: flex;
+  min-height: 50%;
+  flex-direction: column;
 }
 
 #control-panel > .param {
+  flex: 1;
   display: flex;
   margin: 10px;
 }
@@ -98,8 +104,12 @@ a:hover {
 }
 
 #control-panel > #run-button {
+  flex: 1;
+  width: 200px;
+  margin: 0 auto;
+  margin-top: 30px;
+  margin-bottom: 30px;
   padding: 12px 36px;
-  margin: 30px 20px;
   border: 1px solid #81CFE0;
   display: inline-block;
   text-align: center;
