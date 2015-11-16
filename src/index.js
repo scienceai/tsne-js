@@ -21,6 +21,8 @@ class TSNE extends EventEmitter {
     this.nIter = config.nIter || 1000;
     this.metric = config.metric || 'euclidean';
 
+    this.barneshut = config.barneshut || false;
+
     this.inputData = null;
     this.outputEmbedding = null;
   }
