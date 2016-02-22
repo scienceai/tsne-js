@@ -39,7 +39,10 @@ describe('TSNE', function() {
     let trialErrors = [];
 
     for (let trial = 0; trial < nTrials; trial++) {
-      model.init(sample_mat);
+      model.init({ 
+        data: sample_mat, 
+        type: 'dense'
+      });
       let [error, iter] = model.run();
       trialErrors.push(error);
     }
@@ -60,7 +63,10 @@ describe('TSNE', function() {
     let trialErrors = [];
 
     for (let trial = 0; trial < nTrials; trial++) {
-      model.init(sample_coo, 'sparse');
+      model.init({
+        data: sample_coo, 
+        type: 'sparse'
+      });
       let [error, iter] = model.run();
       trialErrors.push(error);
     }
